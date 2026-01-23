@@ -1,3 +1,4 @@
+// routes/index.js
 const express = require('express');
 const authRoutes = require('./auth');
 const bookRoutes = require('./books');
@@ -6,6 +7,7 @@ const userRoutes = require('./users');
 
 const router = express.Router();
 
+// Gabungkan semua routes di sini
 router.use('/auth', authRoutes);
 router.use('/books', bookRoutes);
 router.use('/borrow', borrowRoutes);
