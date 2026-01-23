@@ -13,7 +13,7 @@ const app = express();
 const corsOptions = {
   origin:
     process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL || 'https://yourfrontend.com'
+      ? process.env.FRONTEND_URL || 'letssgominjambukuuu.up.railway.app'
       : [
           'http://localhost:3000',
           'http://localhost:3001',
@@ -87,3 +87,4 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
+
