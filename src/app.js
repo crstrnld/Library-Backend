@@ -36,7 +36,7 @@ app.use(loggerMiddleware);
 app.use('/uploads/books', express.static(path.join(__dirname, '../uploads/books')));
 
 // Routes
-app.use('/api', require('./routes'));
+app.use('/api', routes);
 
 // 404 handler
 app.use((req, res) => {
@@ -87,5 +87,6 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
+
 
 
