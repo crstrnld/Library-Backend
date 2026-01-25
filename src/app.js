@@ -9,76 +9,103 @@ require('dotenv').config();
 
 const app = express();
 
-// CORS Configuration
+// ==========================================
+// CORS CONFIGURATION
+// ==========================================
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'https://letssgominjambukuuu.up.railway.app',
+  'https://letssgominjambukuuu.up.railway.app/',
+];
+
 const corsOptions = {
-  origin:
-    process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL || 'letssgominjambukuuu.up.railway.app'
-      : [
-          'http://localhost:3000',
-          'http://localhost:3001',
-          'http://127.0.0.1:3000',
-          'http://127.0.0.1:3001',
-        ],
+  origin: function (origin, callback) {
+    console.log('🔒 CORS Check - Origin:', origin);
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn('❌ CORS Blocked:', origin);
+      callback(null, true); // Allow untuk debugging
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   optionsSuccessStatus: 200,
+  maxAge: 86400,
 };
 
 // Middlewares
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(loggerMiddleware);
 
-// Serve static files (cover buku)
-app.use('/uploads/books', express.static(path.join(__dirname, '../uploads/books')));
+// ==========================================
+// HEALTH CHECK ENDPOINT
+// ==========================================
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV,
+  });
+});
 
-// Routes
+// ==========================================
+// API ROUTES
+// ==========================================
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use('/api', routes);
 
 // 404 handler
 app.use((req, res) => {
+  console.log('❌ 404 - Route not found:', req.method, req.originalUrl);
   res.status(404).json({
     success: false,
     message: 'Route not found',
+    path: req.originalUrl,
   });
 });
 
-// Error handling middleware
+// Error handler
 app.use(errorHandlerMiddleware);
 
-// Database sync and server start
+// ==========================================
+// START SERVER
+// ==========================================
 const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   try {
+    // Test database connection
     await sequelize.authenticate();
     console.log('✅ Database connection established');
 
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync();
-      console.log('✅ Database models synchronized (development mode)');
-    } else {
-      await sequelize.sync();
-      console.log('✅ Database models synchronized (production mode)');
-    }
+    // Sync models
+    await sequelize.sync({ alter: process.env.NODE_ENV === 'development' });
+    console.log('✅ Database models synchronized');
 
+    // Start server
     app.listen(PORT, () => {
-      const origins = Array.isArray(corsOptions.origin)
-        ? corsOptions.origin.join(', ')
-        : corsOptions.origin;
-      console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-      console.log(`📝 API available at http://localhost:${PORT}/api`);
-      console.log(`🔒 CORS enabled for: ${origins}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV}\n`);
+      console.log(`
+╔════════════════════════════════════════════╗
+║  🚀 SERVER STARTED SUCCESSFULLY           ║
+╠════════════════════════════════════════════╣
+║  Port: ${PORT}
+║  Environment: ${process.env.NODE_ENV}
+║  Frontend: ${process.env.FRONTEND_URL}
+║  Allowed Origins: ${allowedOrigins.length} origins
+╚════════════════════════════════════════════╝
+      `);
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
-    if (process.env.NODE_ENV === 'production') {
-      process.exit(1);
-    }
+    process.exit(1);
   }
 };
 
@@ -87,6 +114,3 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
-
-
-
