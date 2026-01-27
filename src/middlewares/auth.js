@@ -2,7 +2,7 @@ const { verifyToken } = require('../utils/jwt');
 
 const authMiddleware = (req, res, next) => {
   try {
-    const token = req. headers.authorization?.split(' ')[1];
+    const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
       return res.status(401).json({
@@ -20,7 +20,14 @@ const authMiddleware = (req, res, next) => {
       });
     }
 
-    req.user = decoded;
+    // Normalisasi payload agar konsisten
+    req.user = {
+      id: decoded.id || decoded.userId,   // gunakan id jika ada, fallback ke userId
+      email: decoded.email,
+      role: decoded.role,
+      ...decoded, // tetap simpan field lain dari payload
+    };
+
     next();
   } catch (error) {
     res.status(500).json({
