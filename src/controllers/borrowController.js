@@ -130,8 +130,8 @@ exports.getBorrowHistory = async (req, res, next) => {
       include: [
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn'],
-        },
+          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear']
+        }
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),
@@ -228,4 +228,5 @@ exports.getAllBorrowRecords = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
 };
