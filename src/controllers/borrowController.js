@@ -4,7 +4,7 @@ const { Op } = require('sequelize');
 exports.borrowBook = async (req, res, next) => {
   try {
     const { bookId, dueDate } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     if (!bookId || !dueDate) {
       return res.status(400).json({
@@ -45,7 +45,7 @@ exports.borrowBook = async (req, res, next) => {
 exports.returnBook = async (req, res, next) => {
   try {
     const { borrowRecordId } = req.body;
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     if (!borrowRecordId) {
       return res.status(400).json({ success: false, message: 'Borrow record ID is required' });
@@ -82,7 +82,7 @@ exports.returnBook = async (req, res, next) => {
 
 exports.getBorrowHistory = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     const { status, page = 1, limit = 10 } = req.query;
     const offset = (page - 1) * limit;
 
@@ -119,7 +119,7 @@ exports.getBorrowHistory = async (req, res, next) => {
 
 exports.getOverdueBooks = async (req, res, next) => {
   try {
-    const userId = req.user.userId;
+    const userId = req.user.id;
 
     const overdueRecords = await BorrowRecord.findAll({
       where: {
@@ -179,3 +179,4 @@ exports.getAllBorrowRecords = async (req, res, next) => {
     next(error);
   }
 };
+
