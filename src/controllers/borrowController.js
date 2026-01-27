@@ -6,7 +6,7 @@ exports.borrowBook = async (req, res, next) => {
     const { bookId, dueDate } = req.body;
     const userId = req.user.userId;
 
-    if (!bookId || ! dueDate) {
+    if (!bookId || !dueDate) {
       return res.status(400).json({
         success: false,
         message: 'Book ID and due date are required',
@@ -130,8 +130,8 @@ exports.getBorrowHistory = async (req, res, next) => {
       include: [
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear']
-        }
+          attributes: ['id', 'title', 'author', 'isbn'],
+        },
       ],
       limit: parseInt(limit),
       offset: parseInt(offset),
@@ -161,12 +161,14 @@ exports.getOverdueBooks = async (req, res, next) => {
       where: {
         userId,
         status: 'borrowed',
-        dueDate: { [Op.lt]: new Date() },
+        dueDate: {
+          [Op.lt]: new Date(),
+        },
       },
       include: [
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear'],
+          attributes: ['id', 'title', 'author', 'isbn'],
         },
       ],
       order: [['dueDate', 'ASC']],
@@ -205,7 +207,7 @@ exports.getAllBorrowRecords = async (req, res, next) => {
         },
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear'],
+          attributes: ['id', 'title', 'author', 'isbn'],
         },
       ],
       limit: parseInt(limit),
@@ -217,15 +219,13 @@ exports.getAllBorrowRecords = async (req, res, next) => {
       success: true,
       data: rows,
       pagination: {
-        total:  count,
+        total: count,
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math. ceil(count / limit),
+        pages: Math.ceil(count / limit),
       },
     });
   } catch (error) {
     next(error);
   }
-
 };
-
