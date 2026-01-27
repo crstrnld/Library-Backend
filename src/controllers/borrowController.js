@@ -157,18 +157,16 @@ exports.getOverdueBooks = async (req, res, next) => {
   try {
     const userId = req.user.userId;
 
-    const overdueRecords = await BorrowRecord. findAll({
+    const overdueRecords = await BorrowRecord.findAll({
       where: {
         userId,
         status: 'borrowed',
-        dueDate: {
-          [Op.lt]: new Date(),
-        },
+        dueDate: { [Op.lt]: new Date() },
       },
       include: [
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn'],
+          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear'],
         },
       ],
       order: [['dueDate', 'ASC']],
@@ -207,7 +205,7 @@ exports.getAllBorrowRecords = async (req, res, next) => {
         },
         {
           model: Book,
-          attributes: ['id', 'title', 'author', 'isbn'],
+          attributes: ['id', 'title', 'author', 'isbn', 'coverImage', 'category', 'publishedYear'],
         },
       ],
       limit: parseInt(limit),
@@ -230,3 +228,4 @@ exports.getAllBorrowRecords = async (req, res, next) => {
   }
 
 };
+
