@@ -107,7 +107,7 @@ exports.updateUserProfile = async (req, res, next) => {
 };
 
 // ==========================================
-// CHANGE PASSWORD - FIX VERSION
+// CHANGE PASSWORD 
 // ==========================================
 exports.changePassword = async (req, res, next) => {
   try {
@@ -305,4 +305,5 @@ exports.getUserStatistics = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
 };
