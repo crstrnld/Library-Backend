@@ -60,8 +60,6 @@ app.get('/health', (req, res) => {
 // API ROUTES
 // ==========================================
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
-
 
 // 404 handler
 app.use((req, res) => {
@@ -115,6 +113,7 @@ if (process.env.NODE_ENV !== 'test') {
 }
 
 module.exports = app;
+
 
 
 
