@@ -1,12 +1,14 @@
-const { Book, sequelize } = require('../models'); 
+const { Book } = require('../models');
 const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+
 // Get all books
 exports.getAllBooks = async (req, res, next) => {
   try {
-    const { search, category, limit = 20, offset = 0 } = req. query;
+    const { search, category, limit = 20, offset = 0 } = req.query;
     const where = { isActive: true };
 
     if (search) {
@@ -22,17 +24,17 @@ exports.getAllBooks = async (req, res, next) => {
 
     const books = await Book.findAndCountAll({
       where,
-      limit:  parseInt(limit),
+      limit: parseInt(limit),
       offset: parseInt(offset),
       order: [['createdAt', 'DESC']],
     });
 
     res.status(200).json({
       success: true,
-      data: books. rows,
+      data: books.rows,
       pagination: {
         total: books.count,
-        limit:  parseInt(limit),
+        limit: parseInt(limit),
         offset: parseInt(offset),
       },
     });
@@ -44,7 +46,7 @@ exports.getAllBooks = async (req, res, next) => {
 // Get book by ID
 exports.getBookById = async (req, res, next) => {
   try {
-    const book = await Book.findByPk(req.params. id);
+    const book = await Book.findByPk(req.params.id);
 
     if (!book) {
       return res.status(404).json({
@@ -67,7 +69,6 @@ exports.createBook = async (req, res, next) => {
   try {
     const { title, author, isbn, description, publishedYear, totalCopies, category } = req.body;
 
-    // Validation
     if (!title || !author || !isbn) {
       return res.status(400).json({
         success: false,
@@ -75,7 +76,6 @@ exports.createBook = async (req, res, next) => {
       });
     }
 
-    // Check if ISBN already exists
     const existingBook = await Book.findOne({ where: { isbn } });
     if (existingBook) {
       return res.status(409).json({
@@ -90,14 +90,14 @@ exports.createBook = async (req, res, next) => {
       isbn,
       description,
       publishedYear,
-      totalCopies:  totalCopies || 1,
+      totalCopies: totalCopies || 1,
       availableCopies: totalCopies || 1,
       category,
     };
 
     // Handle cover image upload
-    if (req. file) {
-      bookData.coverImage = `/uploads/books/${req.file.filename}`;
+    if (req.file) {
+      bookData.coverImage = `${BASE_URL}/uploads/books/${req.file.filename}`;
     }
 
     const book = await Book.create(bookData);
@@ -115,19 +115,18 @@ exports.createBook = async (req, res, next) => {
 // Update book
 exports.updateBook = async (req, res, next) => {
   try {
-    const { id } = req. params;
+    const { id } = req.params;
     const { title, author, description, publishedYear, totalCopies, category } = req.body;
 
     const book = await Book.findByPk(id);
 
     if (!book) {
-      return res. status(404).json({
+      return res.status(404).json({
         success: false,
-        message:  'Book not found',
+        message: 'Book not found',
       });
     }
 
-    // Update fields
     if (title) book.title = title;
     if (author) book.author = author;
     if (description) book.description = description;
@@ -142,22 +141,21 @@ exports.updateBook = async (req, res, next) => {
 
     // Handle cover image upload
     if (req.file) {
-      // Delete old image if exists
       if (book.coverImage) {
-        const oldImagePath = path. join(__dirname, '../../uploads/books', path.basename(book. coverImage));
+        const oldImagePath = path.join(__dirname, '../../uploads/books', path.basename(book.coverImage));
         if (fs.existsSync(oldImagePath)) {
           fs.unlinkSync(oldImagePath);
         }
       }
-      book.coverImage = `/uploads/books/${req.file.filename}`;
+      book.coverImage = `${BASE_URL}/uploads/books/${req.file.filename}`;
     }
 
-    await book. save();
+    await book.save();
 
     res.status(200).json({
       success: true,
       message: 'Book updated successfully',
-      data:  book,
+      data: book,
     });
   } catch (error) {
     next(error);
@@ -167,7 +165,7 @@ exports.updateBook = async (req, res, next) => {
 // Delete book
 exports.deleteBook = async (req, res, next) => {
   try {
-    const { id } = req. params;
+    const { id } = req.params;
 
     const book = await Book.findByPk(id);
 
@@ -178,7 +176,6 @@ exports.deleteBook = async (req, res, next) => {
       });
     }
 
-    // Delete cover image if exists
     if (book.coverImage) {
       const imagePath = path.join(__dirname, '../../uploads/books', path.basename(book.coverImage));
       if (fs.existsSync(imagePath)) {
@@ -190,10 +187,9 @@ exports.deleteBook = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message:  'Book deleted successfully',
+      message: 'Book deleted successfully',
     });
   } catch (error) {
     next(error);
   }
-
 };
