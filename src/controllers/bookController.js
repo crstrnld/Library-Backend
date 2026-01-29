@@ -3,7 +3,7 @@ const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+const BASE_URL = process.env.BASE_URL || 'https://library-backend-production-1103.up.railway.app/';
 
 // Get all books
 exports.getAllBooks = async (req, res, next) => {
@@ -97,7 +97,7 @@ exports.createBook = async (req, res, next) => {
 
     // Handle cover image upload
     if (req.file) {
-      bookData.coverImage = `${BASE_URL}/uploads/books/${req.file.filename}`;
+      bookData.coverImage = `/uploads/books/${req.file.filename}`;
     }
 
     const book = await Book.create(bookData);
@@ -193,3 +193,4 @@ exports.deleteBook = async (req, res, next) => {
     next(error);
   }
 };
+
