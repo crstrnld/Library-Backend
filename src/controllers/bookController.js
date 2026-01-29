@@ -1,4 +1,5 @@
-const { Book } = require('../models');
+const { Book, sequelize } = require('../models'); 
+const { Op } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
@@ -9,9 +10,9 @@ exports.getAllBooks = async (req, res, next) => {
     const where = { isActive: true };
 
     if (search) {
-      where[sequelize.Op. or] = [
-        sequelize.where(sequelize.fn('LOWER', sequelize.col('title')), 'LIKE', `%${search. toLowerCase()}%`),
-        sequelize.where(sequelize.fn('LOWER', sequelize.col('author')), 'LIKE', `%${search.toLowerCase()}%`),
+      where[Op.or] = [
+        { title: { [Op.iLike]: `%${search}%` } },
+        { author: { [Op.iLike]: `%${search}%` } }
       ];
     }
 
@@ -194,4 +195,5 @@ exports.deleteBook = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+
 };
